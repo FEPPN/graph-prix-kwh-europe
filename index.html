@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Prix du kWh en Europe</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827}
+.wrapper{max-width:980px;margin:0 auto;padding:16px}
+.card{border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;background:#fff}
+.header{background:#5b5bff;color:#fff;text-align:center;padding:16px}
+.header h2{margin:0;font-size:22px;line-height:1.25}
+.header p{margin:6px 0 0;font-size:14px}
+.content{display:grid;grid-template-columns:1.4fr .85fr;gap:16px;padding:16px}
+#map{width:100%;height:520px}
+.panel{border:1px solid #e5e7eb;border-radius:14px;padding:18px;background:#fff;align-self:start}
+.panel-label{font-size:13px;color:#6b7280;margin:0 0 6px}
+.panel h3{margin:0 0 10px;font-size:24px}
+.price{margin:0;font-size:34px;font-weight:800;color:#5b5bff}
+.sub{font-size:14px;color:#374151;margin:6px 0 14px}
+.badge{display:inline-block;background:#f1f3ff;color:#3730a3;padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:14px}
+.note{font-size:14px;line-height:1.5;color:#374151;margin:0}
+.source{font-size:12px;color:#6b7280;font-style:italic;text-align:right;padding:0 16px 16px;margin:0}
+@media(max-width:767px){
+.wrapper{padding:10px}
+.header h2{font-size:19px}
+.content{grid-template-columns:1fr;padding:12px}
+#map{height:430px}
+.panel h3{font-size:22px}
+.price{font-size:30px}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="card">
+<div class="header">
+<h2>Prix du kWh d’électricité en Europe</h2>
+<p>Données ménages, taxes incluses — prix moyen en €/kWh</p>
+</div>
+
+<div class="content">
+<div id="map"></div>
+
+<div class="panel" id="panel">
+<p class="panel-label">Pays sélectionné</p>
+<h3>France</h3>
+<p class="price">0,2500€/kWh</p>
+<p class="sub">Prix moyen ménages, taxes incluses</p>
+<span class="badge">Niveau intermédiaire</span>
+<p class="note">La France se situe sous les pays les plus chers d’Europe, mais au-dessus des pays où les prix sont fortement régulés ou subventionnés.</p>
+</div>
+</div>
+
+<p class="source">Source : Eurostat, prix de l’électricité pour les ménages, 1er semestre 2025. À actualiser lors de la prochaine publication.</p>
+</div>
+</div>
+
+<script>
+const countries=[
+{iso:"DEU",name:"Allemagne",price:0.3835,level:"Très élevé",note:"Prix parmi les plus élevés d’Europe, avec des coûts de réseau, taxes et charges importantes."},
+{iso:"BEL",name:"Belgique",price:0.3571,level:"Très élevé",note:"Prix élevé, notamment en raison de la fiscalité et des coûts d’acheminement."},
+{iso:"DNK",name:"Danemark",price:0.3485,level:"Très élevé",note:"Prix élevé malgré une forte production renouvelable, principalement à cause des taxes et coûts système."},
+{iso:"IRL",name:"Irlande",price:0.3400,level:"Très élevé",note:"Prix élevé, lié aux coûts d’approvisionnement et à la structure du marché."},
+{iso:"ITA",name:"Italie",price:0.3200,level:"Élevé",note:"Prix élevé, notamment en raison d’une forte dépendance historique au gaz."},
+{iso:"CYP",name:"Chypre",price:0.3000,level:"Élevé",note:"Prix élevé, lié à l’insularité et à la dépendance aux combustibles fossiles."},
+{iso:"CZE",name:"Tchéquie",price:0.3000,level:"Élevé",note:"Prix élevé, notamment en pouvoir d’achat."},
+{iso:"NLD",name:"Pays-Bas",price:0.2900,level:"Élevé",note:"Prix sensible au gaz, aux taxes et aux coûts réseau."},
+{iso:"AUT",name:"Autriche",price:0.2800,level:"Élevé",note:"Prix supérieur à la moyenne malgré une forte production hydraulique."},
+{iso:"FRA",name:"France",price:0.2500,level:"Intermédiaire",note:"Prix inférieur aux pays les plus chers, mais supérieur aux pays fortement régulés."},
+{iso:"POL",name:"Pologne",price:0.2500,level:"Intermédiaire",note:"Prix nominal intermédiaire, mais poids important en pouvoir d’achat."},
+{iso:"GRC",name:"Grèce",price:0.2500,level:"Intermédiaire",note:"Prix sensible aux marchés de gros et aux mécanismes publics de soutien."},
+{iso:"ESP",name:"Espagne",price:0.2400,level:"Intermédiaire",note:"Prix proche de la moyenne européenne, influencé par le marché ibérique."},
+{iso:"PRT",name:"Portugal",price:0.2400,level:"Intermédiaire",note:"Prix autour de la moyenne européenne."},
+{iso:"SWE",name:"Suède",price:0.2200,level:"Intermédiaire",note:"Prix modéré grâce à l’hydroélectricité, au nucléaire et aux renouvelables."},
+{iso:"FIN",name:"Finlande",price:0.2200,level:"Intermédiaire",note:"Prix modéré grâce à un mix bas carbone diversifié."},
+{iso:"SVK",name:"Slovaquie",price:0.2200,level:"Intermédiaire",note:"Prix influencé par la régulation nationale."},
+{iso:"EST",name:"Estonie",price:0.2200,level:"Intermédiaire",note:"Prix dépendant des marchés régionaux baltes."},
+{iso:"SVN",name:"Slovénie",price:0.2100,level:"Intermédiaire",note:"Prix relativement modéré."},
+{iso:"LTU",name:"Lituanie",price:0.2100,level:"Intermédiaire",note:"Prix proche des autres marchés baltes."},
+{iso:"LVA",name:"Lettonie",price:0.2000,level:"Bas à intermédiaire",note:"Prix inférieur à la moyenne européenne."},
+{iso:"ROU",name:"Roumanie",price:0.1900,level:"Bas à intermédiaire",note:"Prix relativement bas, influencé par la régulation et le mix national."},
+{iso:"HRV",name:"Croatie",price:0.1800,level:"Bas à intermédiaire",note:"Prix inférieur à la moyenne européenne."},
+{iso:"BGR",name:"Bulgarie",price:0.1300,level:"Bas",note:"Prix parmi les plus bas de l’Union européenne."},
+{iso:"MLT",name:"Malte",price:0.1244,level:"Très bas",note:"Prix bas grâce à un encadrement important du tarif final."},
+{iso:"HUN",name:"Hongrie",price:0.1040,level:"Très bas",note:"Prix parmi les plus bas d’Europe, fortement régulé."}
+];
+
+function formatPrice(v){
+return v.toFixed(4).replace(".",",")+"€/kWh";
+}
+
+const trace={
+type:"choropleth",
+locationmode:"ISO-3",
+locations:countries.map(c=>c.iso),
+z:countries.map(c=>c.price),
+text:countries.map(c=>c.name),
+customdata:countries.map(c=>[c.name,formatPrice(c.price),c.level,c.note]),
+colorscale:[
+[0,"#dbeafe"],
+[0.35,"#a5b4fc"],
+[0.7,"#6366f1"],
+[1,"#312e81"]
+],
+zmin:0.10,
+zmax:0.39,
+marker:{line:{color:"#ffffff",width:1}},
+colorbar:{
+title:"€/kWh",
+thickness:14,
+len:0.75,
+tickfont:{size:11}
+},
+hovertemplate:"<b>%{customdata[0]}</b><br>%{customdata[1]}<extra></extra>"
+};
+
+const layout={
+margin:{l:0,r:0,t:0,b:0},
+geo:{
+scope:"europe",
+projection:{type:"natural earth"},
+showland:true,
+landcolor:"#f3f4f6",
+showocean:true,
+oceancolor:"#f8f9ff",
+showlakes:true,
+lakecolor:"#f8f9ff",
+showcountries:true,
+countrycolor:"#ffffff",
+bgcolor:"#f8f9ff",
+fitbounds:"locations"
+},
+paper_bgcolor:"#f8f9ff",
+plot_bgcolor:"#f8f9ff"
+};
+
+const config={
+responsive:true,
+displayModeBar:false,
+scrollZoom:false,
+doubleClick:false,
+staticPlot:false
+};
+
+Plotly.newPlot("map",[trace],layout,config);
+
+document.getElementById("map").on("plotly_click",function(e){
+const d=e.points[0].customdata;
+document.getElementById("panel").innerHTML=
+'<p class="panel-label">Pays sélectionné</p>'+
+'<h3>'+d[0]+'</h3>'+
+'<p class="price">'+d[1]+'</p>'+
+'<p class="sub">Prix moyen ménages, taxes incluses</p>'+
+'<span class="badge">'+d[2]+'</span>'+
+'<p class="note">'+d[3]+'</p>';
+});
+</script>
+</body>
+</html>
