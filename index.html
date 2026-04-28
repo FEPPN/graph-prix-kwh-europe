@@ -7,7 +7,7 @@
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827;overflow:hidden}
 .wrapper{max-width:980px;margin:0 auto;padding:16px}
 .card{border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;background:#fff}
 .header{background:#5b5bff;color:#fff;text-align:center;padding:16px}
@@ -53,7 +53,7 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 </head>
 
 <body>
-<div class="wrapper">
+<div class="wrapper" id="toolWrapper">
 <div class="card">
 <div class="header">
 <h2>Prix du kWh d’électricité en Europe</h2>
@@ -118,8 +118,12 @@ const countries=[
 
 function formatPrice(v){return v.toFixed(4).replace(".",",")+"€/kWh"}
 function getCountry(iso){return countries.find(c=>c.iso===iso)}
-
 const isMobile=window.matchMedia("(max-width:767px)").matches;
+
+function sendHeight(){
+const h=document.documentElement.scrollHeight;
+window.parent.postMessage({type:"kwhEuropeHeight",height:h},"*");
+}
 
 function updatePanelByIso(iso){
 const c=getCountry(iso);
@@ -138,6 +142,7 @@ const select=document.getElementById("countrySelect");
 if(select)select.value=iso;
 
 bindReset();
+setTimeout(sendHeight,50);
 }
 
 function bindReset(){
@@ -206,12 +211,19 @@ document.getElementById("map").on("plotly_click",function(e){
 const iso=e.points[0].customdata[0];
 updatePanelByIso(iso);
 });
+sendHeight();
 });
 
-window.addEventListener("resize",()=>Plotly.Plots.resize("map"));
+window.addEventListener("resize",()=>{
+Plotly.Plots.resize("map");
+setTimeout(sendHeight,100);
+});
+}else{
+setTimeout(sendHeight,100);
 }
 
 bindReset();
+window.addEventListener("load",sendHeight);
 </script>
 </body>
 </html>
