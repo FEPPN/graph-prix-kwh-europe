@@ -14,7 +14,7 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 .header h2{margin:0;font-size:22px;line-height:1.25}
 .header p{margin:6px 0 0;font-size:14px}
 .content{display:grid;grid-template-columns:1.4fr .85fr;gap:16px;padding:16px}
-.map-wrap{background:#f8f9ff;border-radius:14px;overflow:hidden;border:1px solid #eef0ff}
+.map-wrap{position:relative;background:#f8f9ff;border-radius:14px;overflow:hidden;border:1px solid #eef0ff}
 #map{width:100%;height:520px}
 .panel{border:1px solid #e5e7eb;border-radius:14px;padding:18px;background:#fff;align-self:start}
 .panel-label{font-size:13px;color:#6b7280;margin:0 0 6px}
@@ -26,10 +26,9 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 .actions{display:flex;gap:8px;margin-top:14px}
 .btn{appearance:none;border:1px solid #d8dbff;background:#f8f9ff;color:#3730a3;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer}
 .btn:hover{background:#f1f3ff}
-.mobile-select-wrap{display:none}
-.country-select{width:100%;padding:10px 12px;border:1px solid #d8dbff;border-radius:12px;background:#f8f9ff;color:#111827;font-size:14px;font-weight:700;margin:0 0 14px}
 .helper{display:none;font-size:12px;color:#6b7280;text-align:center;margin:8px 0 0}
 .source{font-size:12px;color:#6b7280;font-style:italic;text-align:right;padding:0 16px 16px;margin:0}
+.mobile-hotspots{display:none}
 
 @media(max-width:767px){
 .wrapper{padding:10px}
@@ -40,18 +39,22 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 .content{display:flex;flex-direction:column;padding:12px;gap:12px}
 .panel{order:1;padding:14px;border-radius:12px}
 .map-wrap{order:2;border-radius:12px}
-#map{height:360px;pointer-events:none;touch-action:pan-y}
+#map{height:380px;pointer-events:none!important;touch-action:pan-y!important}
 .js-plotly-plot,.plot-container,.svg-container,.main-svg{pointer-events:none!important;touch-action:pan-y!important}
-.mobile-select-wrap{display:block}
 .panel-label{font-size:12px;margin-bottom:4px}
 .panel h3{font-size:20px;margin-bottom:6px}
 .price{font-size:28px}
 .sub{font-size:13px;margin:4px 0 10px}
 .badge{font-size:12px;margin-bottom:10px}
 .note{font-size:13px;line-height:1.45}
-.actions{display:none}
+.actions{margin-top:12px}
+.btn{width:100%;padding:9px 12px}
 .helper{display:block}
 .source{text-align:center;padding:0 12px 14px;font-size:11px;line-height:1.35}
+.mobile-hotspots{display:block;position:absolute;inset:0;z-index:5;pointer-events:none}
+.hotspot{position:absolute;width:34px;height:34px;margin-left:-17px;margin-top:-17px;border:0;border-radius:50%;background:rgba(91,91,255,.001);padding:0;pointer-events:auto;touch-action:manipulation;cursor:pointer}
+.hotspot:active{background:rgba(91,91,255,.18)}
+.hotspot-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:700;color:#111827;background:rgba(255,255,255,.82);border:1px solid #e5e7eb;border-radius:999px;padding:2px 4px;pointer-events:none;white-space:nowrap}
 }
 </style>
 </head>
@@ -67,16 +70,40 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 <div class="content">
 <div class="map-wrap">
 <div id="map"></div>
-<p class="helper">Carte statique sur mobile. Sélectionnez un pays dans le menu au-dessus.</p>
+
+<div class="mobile-hotspots" aria-hidden="false">
+<button class="hotspot" type="button" tabindex="-1" data-iso="IRL" style="left:22%;top:44%"><span class="hotspot-label">IE</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="PRT" style="left:29%;top:73%"><span class="hotspot-label">PT</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="ESP" style="left:37%;top:70%"><span class="hotspot-label">ES</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="FRA" style="left:43%;top:57%"><span class="hotspot-label">FR</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="BEL" style="left:45%;top:47%"><span class="hotspot-label">BE</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="NLD" style="left:46%;top:42%"><span class="hotspot-label">NL</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="DEU" style="left:50%;top:48%"><span class="hotspot-label">DE</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="DNK" style="left:50%;top:34%"><span class="hotspot-label">DK</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="POL" style="left:58%;top:49%"><span class="hotspot-label">PL</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="CZE" style="left:54%;top:55%"><span class="hotspot-label">CZ</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="AUT" style="left:53%;top:61%"><span class="hotspot-label">AT</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="ITA" style="left:52%;top:72%"><span class="hotspot-label">IT</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="SVN" style="left:56%;top:64%"><span class="hotspot-label">SI</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="HRV" style="left:59%;top:68%"><span class="hotspot-label">HR</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="HUN" style="left:60%;top:60%"><span class="hotspot-label">HU</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="SVK" style="left:59%;top:55%"><span class="hotspot-label">SK</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="ROU" style="left:67%;top:65%"><span class="hotspot-label">RO</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="BGR" style="left:68%;top:73%"><span class="hotspot-label">BG</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="GRC" style="left:64%;top:82%"><span class="hotspot-label">GR</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="SWE" style="left:55%;top:22%"><span class="hotspot-label">SE</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="FIN" style="left:64%;top:20%"><span class="hotspot-label">FI</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="EST" style="left:67%;top:38%"><span class="hotspot-label">EE</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="LVA" style="left:67%;top:43%"><span class="hotspot-label">LV</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="LTU" style="left:66%;top:48%"><span class="hotspot-label">LT</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="MLT" style="left:55%;top:86%"><span class="hotspot-label">MT</span></button>
+<button class="hotspot" type="button" tabindex="-1" data-iso="CYP" style="left:78%;top:84%"><span class="hotspot-label">CY</span></button>
 </div>
 
-<div class="panel">
-<div class="mobile-select-wrap">
-<select id="countrySelect" class="country-select" aria-label="Choisir un pays">
-</select>
+<p class="helper">Touchez un pays sur la carte pour afficher son prix moyen du kWh.</p>
 </div>
 
-<div id="panelContent">
+<div class="panel" id="panel">
 <p class="panel-label">Pays sélectionné</p>
 <h3>France</h3>
 <p class="price">0,2500€/kWh</p>
@@ -84,7 +111,6 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 <span class="badge">Niveau intermédiaire</span>
 <p class="note">La France se situe sous les pays les plus chers d’Europe, mais au-dessus des pays où les prix sont fortement régulés ou subventionnés.</p>
 <div class="actions"><button class="btn" type="button" id="resetBtn">Revenir à la France</button></div>
-</div>
 </div>
 </div>
 
@@ -122,52 +148,8 @@ const countries=[
 {iso:"HUN",name:"Hongrie",price:0.1040,level:"Très bas",note:"Prix parmi les plus bas d’Europe, fortement régulé."}
 ];
 
-function formatPrice(v){
-return v.toFixed(4).replace(".",",")+"€/kWh";
-}
-
-function getCountry(iso){
-return countries.find(c=>c.iso===iso);
-}
-
-function updatePanelByIso(iso){
-const c=getCountry(iso);
-if(!c)return;
-
-document.getElementById("panelContent").innerHTML=
-'<p class="panel-label">Pays sélectionné</p>'+
-'<h3>'+c.name+'</h3>'+
-'<p class="price">'+formatPrice(c.price)+'</p>'+
-'<p class="sub">Prix moyen ménages, taxes incluses</p>'+
-'<span class="badge">'+c.level+'</span>'+
-'<p class="note">'+c.note+'</p>'+
-'<div class="actions"><button class="btn" type="button" id="resetBtn">Revenir à la France</button></div>';
-
-const select=document.getElementById("countrySelect");
-if(select)select.value=iso;
-
-bindReset();
-}
-
-function bindReset(){
-const btn=document.getElementById("resetBtn");
-if(btn){
-btn.addEventListener("click",()=>updatePanelByIso("FRA"));
-}
-}
-
-const countrySelect=document.getElementById("countrySelect");
-countries
-.slice()
-.sort((a,b)=>a.name.localeCompare(b.name,"fr"))
-.forEach(c=>{
-const opt=document.createElement("option");
-opt.value=c.iso;
-opt.textContent=c.name+" — "+formatPrice(c.price);
-countrySelect.appendChild(opt);
-});
-countrySelect.value="FRA";
-countrySelect.addEventListener("change",e=>updatePanelByIso(e.target.value));
+function formatPrice(v){return v.toFixed(4).replace(".",",")+"€/kWh"}
+function getCountry(iso){return countries.find(c=>c.iso===iso)}
 
 const isMobile=window.matchMedia("(max-width:767px)").matches;
 
@@ -177,21 +159,21 @@ locationmode:"ISO-3",
 locations:countries.map(c=>c.iso),
 z:countries.map(c=>c.price),
 text:countries.map(c=>c.name),
-customdata:countries.map(c=>[c.iso]),
+customdata:countries.map(c=>[c.iso,c.name,formatPrice(c.price),c.level,c.note]),
 colorscale:[[0,"#dbeafe"],[0.35,"#a5b4fc"],[0.7,"#6366f1"],[1,"#312e81"]],
 zmin:0.10,
 zmax:0.39,
 marker:{line:{color:"#ffffff",width:1}},
 colorbar:isMobile?{thickness:0,len:0}:{title:"€/kWh",thickness:12,len:0.72,tickfont:{size:10}},
 hoverinfo:isMobile?"skip":"text",
-hovertemplate:isMobile?null:"<b>%{text}</b><extra></extra>"
+hovertemplate:isMobile?null:"<b>%{customdata[1]}</b><br>%{customdata[2]}<extra></extra>"
 };
 
 const layout={
 margin:{l:0,r:0,t:0,b:0},
 geo:{
 scope:"europe",
-projection:{type:"natural earth",scale:isMobile?2.15:1},
+projection:{type:"natural earth",scale:isMobile?2.25:1},
 center:isMobile?{lon:12,lat:50}:undefined,
 showland:true,
 landcolor:"#f3f4f6",
@@ -217,14 +199,40 @@ doubleClick:false,
 staticPlot:isMobile
 };
 
+function updatePanelByCountry(c){
+if(!c)return;
+document.getElementById("panel").innerHTML=
+'<p class="panel-label">Pays sélectionné</p>'+
+'<h3>'+c.name+'</h3>'+
+'<p class="price">'+formatPrice(c.price)+'</p>'+
+'<p class="sub">Prix moyen ménages, taxes incluses</p>'+
+'<span class="badge">'+c.level+'</span>'+
+'<p class="note">'+c.note+'</p>'+
+'<div class="actions"><button class="btn" type="button" id="resetBtn">Revenir à la France</button></div>';
+bindReset();
+}
+
+function bindReset(){
+const btn=document.getElementById("resetBtn");
+if(btn){
+btn.addEventListener("click",()=>updatePanelByCountry(getCountry("FRA")));
+}
+}
+
 Plotly.newPlot("map",[trace],layout,config).then(()=>{
 if(!isMobile){
 document.getElementById("map").on("plotly_click",function(e){
 const iso=e.points[0].customdata[0];
-updatePanelByIso(iso);
+updatePanelByCountry(getCountry(iso));
 });
-bindReset();
 }
+bindReset();
+});
+
+document.querySelectorAll(".hotspot").forEach(btn=>{
+btn.addEventListener("click",function(){
+updatePanelByCountry(getCountry(this.dataset.iso));
+});
 });
 
 window.addEventListener("resize",()=>Plotly.Plots.resize("map"));
