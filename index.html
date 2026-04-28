@@ -7,7 +7,7 @@
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827;overflow:hidden}
+html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111827}
 .wrapper{max-width:980px;margin:0 auto;padding:16px}
 .card{border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.08);overflow:hidden;background:#fff}
 .header{background:#5b5bff;color:#fff;text-align:center;padding:16px}
@@ -53,7 +53,7 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 </head>
 
 <body>
-<div class="wrapper" id="toolWrapper">
+<div class="wrapper">
 <div class="card">
 <div class="header">
 <h2>Prix du kWh d’électricité en Europe</h2>
@@ -76,7 +76,7 @@ html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:#
 <p class="price">0,2500€/kWh</p>
 <p class="sub">Prix moyen ménages, taxes incluses</p>
 <span class="badge">Niveau intermédiaire</span>
-<p class="note">La France se situe sous les pays les plus chers d’Europe, mais au-dessus des pays où les prix sont fortement régulés ou subventionnés.</p>
+<p class="note">La France se situe sous les pays les plus chers d’Europe, mais au-dessus des pays où les prix sont fortement régulés.</p>
 <div class="actions"><button class="btn" type="button" id="resetBtn">Revenir à la France</button></div>
 </div>
 </div>
@@ -116,14 +116,15 @@ const countries=[
 {iso:"HUN",name:"Hongrie",price:0.1040,level:"Très bas",note:"Prix parmi les plus bas d’Europe, fortement régulé."}
 ];
 
-function formatPrice(v){return v.toFixed(4).replace(".",",")+"€/kWh"}
-function getCountry(iso){return countries.find(c=>c.iso===iso)}
-const isMobile=window.matchMedia("(max-width:767px)").matches;
-
-function sendHeight(){
-const h=document.documentElement.scrollHeight;
-window.parent.postMessage({type:"kwhEuropeHeight",height:h},"*");
+function formatPrice(v){
+return v.toFixed(4).replace(".",",")+"€/kWh";
 }
+
+function getCountry(iso){
+return countries.find(c=>c.iso===iso);
+}
+
+const isMobile=window.matchMedia("(max-width:767px)").matches;
 
 function updatePanelByIso(iso){
 const c=getCountry(iso);
@@ -142,7 +143,6 @@ const select=document.getElementById("countrySelect");
 if(select)select.value=iso;
 
 bindReset();
-setTimeout(sendHeight,50);
 }
 
 function bindReset(){
@@ -153,12 +153,17 @@ btn.addEventListener("click",()=>updatePanelByIso("FRA"));
 }
 
 const countrySelect=document.getElementById("countrySelect");
-countries.slice().sort((a,b)=>a.name.localeCompare(b.name,"fr")).forEach(c=>{
+
+countries
+.slice()
+.sort((a,b)=>a.name.localeCompare(b.name,"fr"))
+.forEach(c=>{
 const opt=document.createElement("option");
 opt.value=c.iso;
 opt.textContent=c.name+" — "+formatPrice(c.price);
 countrySelect.appendChild(opt);
 });
+
 countrySelect.value="FRA";
 countrySelect.addEventListener("change",e=>updatePanelByIso(e.target.value));
 
@@ -211,19 +216,12 @@ document.getElementById("map").on("plotly_click",function(e){
 const iso=e.points[0].customdata[0];
 updatePanelByIso(iso);
 });
-sendHeight();
 });
 
-window.addEventListener("resize",()=>{
-Plotly.Plots.resize("map");
-setTimeout(sendHeight,100);
-});
-}else{
-setTimeout(sendHeight,100);
+window.addEventListener("resize",()=>Plotly.Plots.resize("map"));
 }
 
 bindReset();
-window.addEventListener("load",sendHeight);
 </script>
 </body>
 </html>
