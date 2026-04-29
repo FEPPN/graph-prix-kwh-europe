@@ -222,6 +222,16 @@ window.addEventListener("resize",()=>Plotly.Plots.resize("map"));
 }
 
 bindReset();
+
+function envoyerHauteurIframe() {
+        const hauteur = document.documentElement.scrollHeight + 15;
+        window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+    }
+
+    const observerTaille = new ResizeObserver(() => {
+        envoyerHauteurIframe();
+    });
+    observerTaille.observe(document.body);
 </script>
 </body>
 </html>
