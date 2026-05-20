@@ -225,7 +225,7 @@ bindReset();
 
 function envoyerHauteurIframe() {
         const hauteur = document.documentElement.scrollHeight + 15;
-        window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+        window.parent.postMessage({ type: 'graph-prix-kwh-europe', height: hauteur }, '*');
     }
 
     const observerTaille = new ResizeObserver(() => {
@@ -234,7 +234,7 @@ function envoyerHauteurIframe() {
     observerTaille.observe(document.body);
 function envoyerHauteurIframe() {
         const hauteur = document.documentElement.scrollHeight + 15;
-        window.parent.postMessage({ type: 'resize-dpe-widget', height: hauteur }, '*');
+        window.parent.postMessage({ type: 'graph-prix-kwh-europe', height: hauteur }, '*');
     }
 
     const observerTaille = new ResizeObserver(() => {
